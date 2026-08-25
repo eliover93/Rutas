@@ -24,9 +24,9 @@ export function SiteHeader() {
           </a>
           <Link
             href="/auth/login"
-            className="hidden rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:inline"
+            className="rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
-            Acceso agencias
+            Acceder
           </Link>
           <Link
             href="/auth/signup"
