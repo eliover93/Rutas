@@ -63,14 +63,37 @@ export interface ItineraryDay {
   order_index: number;
 }
 
-// Placeholder mínimo — sustituir por:
+export interface Profile {
+  id: string;
+  agency_id: string | null;
+  full_name: string | null;
+  role: 'agent' | 'owner' | 'superadmin';
+  created_at: string;
+}
+
+// Placeholder mínimo — para tipos generados de verdad y siempre sincronizados:
 // npx supabase gen types typescript --project-id <id> > src/types/database.types.ts
 export interface Database {
   public: {
     Tables: {
-      agencies: { Row: Agency; Insert: Partial<Agency>; Update: Partial<Agency> };
-      proposals: { Row: Proposal; Insert: Partial<Proposal>; Update: Partial<Proposal> };
-      itinerary_days: { Row: ItineraryDay; Insert: Partial<ItineraryDay>; Update: Partial<ItineraryDay> };
+      profiles: { Row: Profile; Insert: Partial<Profile>; Update: Partial<Profile>; Relationships: [] };
+      agencies: { Row: Agency; Insert: Partial<Agency>; Update: Partial<Agency>; Relationships: [] };
+      proposals: { Row: Proposal; Insert: Partial<Proposal>; Update: Partial<Proposal>; Relationships: [] };
+      itinerary_days: {
+        Row: ItineraryDay;
+        Insert: Partial<ItineraryDay>;
+        Update: Partial<ItineraryDay>;
+        Relationships: [];
+      };
     };
+    Views: Record<string, never>;
+    Functions: {
+      increment_proposal_views: {
+        Args: { p_slug: string };
+        Returns: void;
+      };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
