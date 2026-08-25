@@ -10,14 +10,14 @@ interface FieldProps {
 export function Field({ label, name, defaultValue, type = 'text', min, max }: FieldProps) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-slate-500">{label}</label>
+      <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</label>
       <input
         name={name}
         type={type}
         defaultValue={defaultValue}
         min={min}
         max={max}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/15"
       />
     </div>
   );
@@ -33,13 +33,13 @@ interface TextAreaProps {
 export function TextArea({ label, name, defaultValue, placeholder }: TextAreaProps) {
   return (
     <div>
-      {label && <label className="mb-1 block text-xs text-slate-500">{label}</label>}
+      {label && <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</label>}
       <textarea
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
         rows={3}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/15"
       />
     </div>
   );

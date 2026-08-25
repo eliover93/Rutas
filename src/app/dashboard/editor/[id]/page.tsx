@@ -31,8 +31,8 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">{proposal.title}</h1>
-        <a href={`/p/${proposal.public_slug}`} target="_blank" className="text-sm text-cyan-600 hover:underline">
+        <h1 className="font-display text-2xl text-foreground">{proposal.title}</h1>
+        <a href={`/p/${proposal.public_slug}`} target="_blank" className="text-sm text-primary hover:underline">
           Ver micrositio →
         </a>
       </div>
@@ -40,17 +40,17 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
       {/* Detalles generales */}
       <form
         action={updateProposalDetails.bind(null, proposal.id)}
-        className="space-y-4 rounded-2xl border border-slate-200 p-5"
+        className="space-y-4 rounded-2xl border border-border p-5"
       >
-        <h2 className="font-medium text-slate-900">Detalles generales</h2>
+        <h2 className="font-medium text-foreground">Detalles generales</h2>
         <Field label="Título" name="title" defaultValue={proposal.title} />
 
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500">Tema visual</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Tema visual</label>
           <select
             name="theme_key"
             defaultValue={proposal.theme_key ?? ''}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm"
           >
             {THEMES.map((t) => (
               <option key={t.value} value={t.value}>
@@ -58,7 +58,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
               </option>
             ))}
           </select>
-          <p className="mt-1 text-[11px] text-slate-400">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             Por defecto se detecta solo por el destino — elige uno a mano si quieres forzar un estilo distinto.
           </p>
         </div>
@@ -72,20 +72,20 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
         />
 
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500">Mensaje personalizado para el cliente</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Mensaje personalizado para el cliente</label>
           <textarea
             name="client_message"
             defaultValue={proposal.client_message ?? ''}
             rows={3}
             placeholder='Ej. "Hola Marta, os he preparado esta ruta pensando en las auroras boreales que me comentasteis..."'
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm"
           />
-          <p className="mt-1 text-[11px] text-slate-400">Aparece destacado justo debajo de la cabecera del micrositio.</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">Aparece destacado justo debajo de la cabecera del micrositio.</p>
         </div>
 
         <Field label="Precio total (€)" name="price" type="number" defaultValue={proposal.price ?? ''} />
 
-        <h3 className="pt-2 text-sm font-medium text-slate-700">Hotel</h3>
+        <h3 className="pt-2 text-sm font-medium text-foreground">Hotel</h3>
         <Field label="Nombre del hotel" name="hotel_name" defaultValue={proposal.hotel_name ?? ''} />
         <Field
           label="Estrellas (1-5)"
@@ -103,34 +103,34 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
           creditUrlName="hotel_image_credit_url"
         />
 
-        <h3 className="pt-2 text-sm font-medium text-slate-700">Precio: qué incluye (una línea por concepto)</h3>
+        <h3 className="pt-2 text-sm font-medium text-foreground">Precio: qué incluye (una línea por concepto)</h3>
         <TextArea name="price_includes" defaultValue={(proposal.price_includes ?? []).join('\n')} />
-        <h3 className="text-sm font-medium text-slate-700">Precio: qué no incluye</h3>
+        <h3 className="text-sm font-medium text-foreground">Precio: qué no incluye</h3>
         <TextArea name="price_excludes" defaultValue={(proposal.price_excludes ?? []).join('\n')} />
 
-        <button type="submit" className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700">
+        <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
           Guardar cambios
         </button>
       </form>
 
       {/* Itinerario */}
       <div className="space-y-3">
-        <h2 className="font-medium text-slate-900">Itinerario</h2>
+        <h2 className="font-medium text-foreground">Itinerario</h2>
 
         {days?.map((day) => (
           <form
             key={day.id}
             action={upsertDay.bind(null, proposal.id, day.id)}
-            className="space-y-2 rounded-xl border border-slate-200 p-4"
+            className="space-y-2 rounded-xl border border-border p-4"
           >
             <div className="grid grid-cols-2 gap-2">
               <Field label="Día nº" name="day_number" type="number" defaultValue={day.day_number} />
               <div>
-                <label className="mb-1 block text-xs text-slate-500">Categoría</label>
+                <label className="mb-1 block text-xs text-muted-foreground">Categoría</label>
                 <select
                   name="category"
                   defaultValue={day.category ?? ''}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-border px-3 py-2 text-sm"
                 >
                   <option value="">—</option>
                   {CATEGORIES.map((c) => (
@@ -151,12 +151,12 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
               creditUrlName="image_credit_url"
             />
             <div className="flex gap-2 pt-1">
-              <button type="submit" className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white">
+              <button type="submit" className="rounded-xl bg-foreground px-3 py-1.5 text-xs font-medium text-primary-foreground">
                 Guardar día
               </button>
               <button
                 formAction={deleteDay.bind(null, proposal.id, day.id)}
-                className="rounded-lg px-3 py-1.5 text-xs text-red-500 hover:underline"
+                className="rounded-xl px-3 py-1.5 text-xs text-red-500 hover:underline"
               >
                 Eliminar
               </button>
@@ -167,14 +167,14 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
         {/* Nuevo día */}
         <form
           action={upsertDay.bind(null, proposal.id, null)}
-          className="space-y-2 rounded-xl border border-dashed border-slate-300 p-4"
+          className="space-y-2 rounded-xl border border-dashed border-border p-4"
         >
-          <p className="text-sm font-medium text-slate-700">Añadir día</p>
+          <p className="text-sm font-medium text-foreground">Añadir día</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Día nº" name="day_number" type="number" defaultValue={(days?.length ?? 0) + 1} />
             <div>
-              <label className="mb-1 block text-xs text-slate-500">Categoría</label>
-              <select name="category" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+              <label className="mb-1 block text-xs text-muted-foreground">Categoría</label>
+              <select name="category" className="w-full rounded-xl border border-border px-3 py-2 text-sm">
                 <option value="">—</option>
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -187,7 +187,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
           <Field label="Título" name="title" />
           <TextArea label="Descripción" name="description" />
           <UnsplashField label="Foto del día" name="image_url" creditName="image_credit" creditUrlName="image_credit_url" />
-          <button type="submit" className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700">
+          <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             Añadir día
           </button>
         </form>

@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     : null;
 
   return (
-    <div className="flex bg-background">
+    <div className="min-h-screen bg-background md:flex">
       <Sidebar />
       <div className="flex-1">
         {agency?.subscription_status === 'trialing' && daysLeft !== null && (

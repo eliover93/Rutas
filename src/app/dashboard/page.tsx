@@ -3,6 +3,7 @@ import { Plus, Eye, FileText, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { resolveCoverImage } from '@/lib/coverImage';
 import { detectTheme } from '@/lib/themes';
+import { FounderBanner } from '@/components/dashboard/FounderBanner';
 import type { ThemeKey } from '@/types/database.types';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -21,6 +22,17 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from('profiles').select('agency_id').eq('id', user?.id).single();
+  const { data: agency } = await supabase
+    .from('agencies')
+    .select('is_founder_deal, plan')
+    .eq('id', profile?.agency_id)
+    .single();
+
   const { data: proposals } = await supabase
     .from('proposals')
     .select('*')
@@ -40,6 +52,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
+      {agency?.is_founder_deal && agency.plan === 'starter' && <FounderBanner />}
       <div className="mb-8 flex items-center justify-between">
         <h1 className="font-display text-2xl text-foreground">Propuestas</h1>
         <Link

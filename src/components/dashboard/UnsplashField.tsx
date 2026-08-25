@@ -53,7 +53,7 @@ export function UnsplashField({
 
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-slate-500">{label}</label>
+      <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</label>
 
       <div className="flex gap-2">
         <input
@@ -61,12 +61,12 @@ export function UnsplashField({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="URL de la imagen"
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-border px-3 py-2 text-sm"
         />
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex-shrink-0 rounded-lg border border-slate-200 px-3 text-slate-500 hover:bg-slate-50"
+          className="flex-shrink-0 rounded-xl border border-border px-3 text-muted-foreground hover:bg-secondary/50"
         >
           <Search size={15} />
         </button>
@@ -79,9 +79,9 @@ export function UnsplashField({
       {value && (
         <div className="mt-2 flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="h-16 w-24 rounded-lg object-cover" />
+          <img src={value} alt="" className="h-16 w-24 rounded-xl object-cover" />
           {credit && (
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-muted-foreground">
               Foto:{' '}
               <a href={credit.url} target="_blank" className="underline">
                 {credit.name}
@@ -93,7 +93,7 @@ export function UnsplashField({
       )}
 
       {open && (
-        <div className="mt-2 rounded-lg border border-slate-200 p-3">
+        <div className="mt-2 rounded-xl border border-border p-3">
           <div className="mb-2 flex gap-2">
             <input
               value={query}
@@ -105,12 +105,12 @@ export function UnsplashField({
                 }
               }}
               placeholder="Buscar en Unsplash (ej. safari kenia)"
-              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs"
+              className="w-full rounded-xl border border-border px-3 py-1.5 text-xs"
             />
             <button
               type="button"
               onClick={search}
-              className="flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white"
+              className="flex items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-medium text-white"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : 'Buscar'}
             </button>
