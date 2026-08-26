@@ -1,8 +1,16 @@
-import { Hotel } from 'lucide-react';
+import { Hotel, MapPin } from 'lucide-react';
 import type { Proposal } from '@/types/database.types';
 
 export function HotelBlock({ proposal }: { proposal: Proposal }) {
   if (!proposal.hotel_name) return null;
+
+  // Enlace de búsqueda directo a Google Maps — sin API key, sin coste,
+  // sin cuenta de Google Cloud. No apunta al lugar exacto garantizado
+  // (es una búsqueda, no un ID de lugar), pero funciona bien en la
+  // inmensa mayoría de los casos con nombre + destino.
+  const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${proposal.hotel_name}, ${proposal.destination}`
+  )}`;
 
   return (
     <div className="flex overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
@@ -29,6 +37,14 @@ export function HotelBlock({ proposal }: { proposal: Proposal }) {
             <span className="text-slate-300">{'★'.repeat(5 - proposal.hotel_stars)}</span>
           </div>
         )}
+        
+          href={mapsSearchUrl}
+          target="_blank"
+          className="mt-2 flex w-fit items-center gap-1 text-xs font-medium hover:underline"
+          style={{ color: 'var(--color-primary)' }}
+        >
+          <MapPin size={12} /> Ver en Google Maps
+        </a>
         {proposal.hotel_image_credit && (
           <a href={proposal.hotel_image_credit_url ?? '#'} target="_blank" className="mt-1 block text-[10px] text-slate-300 hover:underline">
             Foto: {proposal.hotel_image_credit} / Unsplash
