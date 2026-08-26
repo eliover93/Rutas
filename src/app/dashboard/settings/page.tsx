@@ -46,7 +46,26 @@ export default async function SettingsPage() {
 
       <form action={updateBranding} className="space-y-6 rounded-2xl border border-border bg-surface p-6">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">URL del logo</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Logo de la agencia</label>
+
+          <div className="mb-3">
+            <label
+              htmlFor="logo_file"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
+            >
+              Subir desde tu ordenador
+            </label>
+            <input
+              id="logo_file"
+              name="logo_file"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+              className="hidden"
+            />
+            <p className="mt-1.5 text-[11px] text-muted-foreground">JPG, PNG, WEBP o SVG — máximo 5MB.</p>
+          </div>
+
+          <p className="mb-1.5 text-[11px] text-muted-foreground">O pega directamente una URL:</p>
           <input
             name="logo_url"
             type="url"
@@ -54,6 +73,10 @@ export default async function SettingsPage() {
             defaultValue={agency?.logo_url ?? ''}
             className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
           />
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            Si subes un archivo, se usará ese en vez de la URL.
+          </p>
+
           {agency?.logo_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={agency.logo_url} alt="Logo actual" className="mt-3 h-12 rounded-lg border border-border object-contain p-2" />
