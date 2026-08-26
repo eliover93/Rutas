@@ -46,6 +46,23 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
         <Field label="Título" name="title" defaultValue={proposal.title} />
 
         <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Estado</label>
+          <select
+            name="status"
+            defaultValue={proposal.status}
+            className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+          >
+            <option value="draft">Borrador (no visible para el cliente)</option>
+            <option value="sent">Enviado (ya visible en el enlace público)</option>
+            <option value="accepted">Aceptado</option>
+            <option value="rejected">Rechazado</option>
+          </select>
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            El micrositio público solo se abre en Enviado o Aceptado — en Borrador o Rechazado da 404 a propósito.
+          </p>
+        </div>
+
+        <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Tema visual</label>
           <select
             name="theme_key"

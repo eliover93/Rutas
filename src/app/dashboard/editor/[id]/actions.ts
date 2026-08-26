@@ -25,6 +25,7 @@ export async function updateProposalDetails(proposalId: string, formData: FormDa
     .from('proposals')
     .update({
       title: formData.get('title'),
+      status: formData.get('status') as string,
       theme_key: (formData.get('theme_key') as string) || null,
       client_message: (formData.get('client_message') as string) || null,
       cover_image_url: (formData.get('cover_image_url') as string) || null,
