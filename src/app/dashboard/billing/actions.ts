@@ -43,7 +43,9 @@ export async function createCheckoutSession(formData: FormData) {
 // Para quien YA tiene una suscripción activa: cambiar/cancelar el plan pasa
 // por el propio Portal de Stripe, nunca creando otro checkout — evitar así
 // dos suscripciones activas en paralelo (y un doble cobro real).
-export async function createPortalSession() {
+// targetUpgrade=true lleva directo a la pantalla de cambio de plan dentro
+// del portal (mejor conversión que el menú genérico del portal).
+export async function createPortalSession(targetUpgrade: boolean) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -57,7 +59,7 @@ export async function createPortalSession() {
 
   const { data: agency } = await supabase
     .from('agencies')
-    .select('stripe_customer_id')
+    .select('stripe_customer_id, stripe_subscription_id')
     .eq('id', profile?.agency_id)
     .single();
 
@@ -66,6 +68,14 @@ export async function createPortalSession() {
   const session = await stripe.billingPortal.sessions.create({
     customer: agency.stripe_customer_id,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
+    ...(targetUpgrade && agency.stripe_subscription_id
+      ? {
+          flow_data: {
+            type: 'subscription_update' as const,
+            subscription_update: { subscription: agency.stripe_subscription_id },
+          },
+        }
+      : {}),
   });
 
   redirect(session.url);
