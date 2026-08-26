@@ -43,7 +43,7 @@ export function HotelBlock({ proposal }: { proposal: Proposal }) {
         </h3>
         {starsContent}
         
-          href={mapsSearchUrl}
+          <a href={mapsSearchUrl}
           target="_blank"
           className="mt-2 flex w-fit items-center gap-1 text-xs font-medium hover:underline"
           style={{ color: 'var(--color-primary)' }}
