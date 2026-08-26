@@ -1,9 +1,16 @@
 import Link from 'next/link';
-import { Lock } from 'lucide-react';
+import { Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { updateBranding } from './actions';
+import { LogoUploadField } from '@/components/dashboard/LogoUploadField';
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
+  const { saved, error } = await searchParams;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -40,48 +47,23 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl px-8 py-10">
       <h1 className="mb-2 font-display text-2xl text-foreground">Ajustes / Branding</h1>
-      <p className="mb-8 text-sm text-muted-foreground">
+      <p className="mb-6 text-sm text-muted-foreground">
         Se aplica automáticamente en todos los micrositios que compartas con tus clientes.
       </p>
 
-      <form action={updateBranding} className="space-y-6 rounded-2xl border border-border bg-surface p-6">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Logo de la agencia</label>
-
-          <div className="mb-3">
-            <label
-              htmlFor="logo_file"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
-            >
-              Subir desde tu ordenador
-            </label>
-            <input
-              id="logo_file"
-              name="logo_file"
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
-              className="hidden"
-            />
-            <p className="mt-1.5 text-[11px] text-muted-foreground">JPG, PNG, WEBP o SVG — máximo 5MB.</p>
-          </div>
-
-          <p className="mb-1.5 text-[11px] text-muted-foreground">O pega directamente una URL:</p>
-          <input
-            name="logo_url"
-            type="url"
-            placeholder="https://tuagencia.com/logo.png"
-            defaultValue={agency?.logo_url ?? ''}
-            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
-          />
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
-            Si subes un archivo, se usará ese en vez de la URL.
-          </p>
-
-          {agency?.logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={agency.logo_url} alt="Logo actual" className="mt-3 h-12 rounded-lg border border-border object-contain p-2" />
-          )}
+      {saved && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <CheckCircle2 size={16} /> Cambios guardados correctamente.
         </div>
+      )}
+      {error && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          <AlertCircle size={16} /> {decodeURIComponent(error)}
+        </div>
+      )}
+
+      <form action={updateBranding} className="space-y-6 rounded-2xl border border-border bg-surface p-6">
+        <LogoUploadField currentLogoUrl={agency?.logo_url} />
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Color de marca</label>
