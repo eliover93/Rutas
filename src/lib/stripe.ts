@@ -11,3 +11,11 @@ export const PRICE_IDS = {
 } as const;
 
 export type PlanKey = keyof typeof PRICE_IDS;
+
+// Traduce el price_id real de Stripe a nuestro nombre de plan interno.
+// Compartido entre el webhook y la página de facturación.
+export function planFromPriceId(priceId: string | undefined): PlanKey | null {
+  if (!priceId) return null;
+  const entry = Object.entries(PRICE_IDS).find(([, id]) => id === priceId);
+  return (entry?.[0] as PlanKey) ?? null;
+}

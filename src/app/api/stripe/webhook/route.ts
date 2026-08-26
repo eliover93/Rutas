@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, planFromPriceId } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type Stripe from 'stripe';
 
@@ -19,17 +19,6 @@ function mapStripeStatus(status: Stripe.Subscription.Status): 'trialing' | 'acti
     default:
       return 'expired';
   }
-}
-
-// Traduce el price_id real de Stripe a nuestro nombre de plan interno.
-// Necesario para los cambios que vienen del Portal de Facturación, donde
-// no controlamos los metadatos como sí hacemos en nuestro propio checkout.
-function planFromPriceId(priceId: string | undefined): 'starter' | 'pro' | 'team' | null {
-  if (!priceId) return null;
-  if (priceId === process.env.STRIPE_PRICE_STARTER) return 'starter';
-  if (priceId === process.env.STRIPE_PRICE_PRO) return 'pro';
-  if (priceId === process.env.STRIPE_PRICE_TEAM) return 'team';
-  return null;
 }
 
 export async function POST(req: Request) {

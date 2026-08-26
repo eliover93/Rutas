@@ -1,173 +1,120 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowRight, LayoutDashboard, Sparkles, Wallet, Palette, Share2, Earth } from 'lucide-react';
+import { Plus, Eye, FileText, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { SiteHeader } from '@/components/marketing/SiteHeader';
-import { DemoHeroPreview } from '@/components/marketing/DemoHeroPreview';
-import { Reveal } from '@/components/shared/Reveal';
+import { resolveCoverImage } from '@/lib/coverImage';
+import { detectTheme } from '@/lib/themes';
+import { FounderBanner } from '@/components/dashboard/FounderBanner';
+import type { ThemeKey } from '@/types/database.types';
 
-const STATS = [
-  { value: 'Minutos', label: 'para montar una propuesta completa (no horas de PDF)' },
-  { value: 'Un enlace', label: 'el cliente la abre en el móvil, sin instalar nada' },
-  { value: '100%', label: 'adaptable a la marca de cada agencia' },
-];
+const STATUS_LABEL: Record<string, string> = {
+  draft: 'Borrador',
+  sent: 'Enviado',
+  accepted: 'Aceptado',
+  rejected: 'Rechazado',
+};
 
-const FEATURES = [
-  { icon: LayoutDashboard, title: 'Backoffice sin curva de aprendizaje', desc: 'Formularios claros: datos del viaje, itinerario día a día, hotel y presupuesto. Sin manuales.' },
-  { icon: Sparkles, title: 'Presentación con efecto wow', desc: 'Tema visual y fotografía que cambian solos según el destino. El cliente se enamora antes de leer el precio.' },
-  { icon: Wallet, title: 'Presupuestos transparentes', desc: 'Desglose por conceptos, incluido / no incluido, total y precio por persona automático.' },
-  { icon: Palette, title: 'Marca blanca por agencia', desc: 'Logo y colores propios en el plan Pro. El mismo motor, cada agencia con su identidad.' },
-  { icon: Share2, title: 'Comparte con un enlace', desc: 'Cada propuesta vive en su propia URL: se abre en el móvil del cliente sin fricción.' },
-  { icon: Earth, title: 'Reutilizable y escalable', desc: 'Duplica un viaje, cambia cuatro campos y tienes una propuesta nueva en minutos.' },
-];
+const STATUS_COLOR: Record<string, string> = {
+  draft: 'bg-secondary text-muted-foreground',
+  sent: 'bg-amber-100 text-amber-700',
+  accepted: 'bg-emerald-100 text-emerald-700',
+  rejected: 'bg-red-100 text-red-700',
+};
 
-const STEPS = [
-  { n: '01', title: 'Rellena el viaje', desc: 'Tu equipo carga destino, días, actividades y precios.' },
-  { n: '02', title: 'Rutas lo monta', desc: 'Se genera la propuesta con tema visual, itinerario y mapa.' },
-  { n: '03', title: 'El cliente dice sí', desc: 'Comparte el enlace y recibe la confirmación desde el móvil.' },
-];
-
-const PLANS = [
-  { name: 'Starter', price: '29€/mes', desc: 'Hasta 10 itinerarios activos/mes' },
-  { name: 'Pro', price: '59€/mes', desc: 'Itinerarios ilimitados + marca blanca', popular: true },
-  { name: 'Team', price: '99€/mes', desc: 'Todo Pro + 5 agentes colaboradores' },
-];
-
-export default async function HomePage() {
+export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) redirect('/dashboard');
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from('profiles').select('agency_id').eq('id', user?.id).single();
+  const { data: agency } = await supabase
+    .from('agencies')
+    .select('is_founder_deal, plan')
+    .eq('id', profile?.agency_id)
+    .single();
+
+  const { data: proposals } = await supabase
+    .from('proposals')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  const list = proposals ?? [];
+  const total = list.length;
+  const totalViews = list.reduce((sum, p) => sum + (p.views ?? 0), 0);
+  const accepted = list.filter((p) => p.status === 'accepted').length;
+  const acceptanceRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
+
+  const metrics = [
+    { label: 'Total propuestas', value: total, icon: FileText },
+    { label: 'Vistas totales', value: totalViews, icon: Eye },
+    { label: 'Ratio de aceptación', value: `${acceptanceRate}%`, icon: TrendingUp },
+  ];
 
   return (
-    <div className="bg-background" suppressHydrationWarning>
-      <SiteHeader />
+    <div className="mx-auto max-w-6xl px-8 py-10">
+      {agency?.is_founder_deal && agency.plan === 'starter' && <FounderBanner />}
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="font-display text-2xl text-foreground">Propuestas</h1>
+        <Link
+          href="/dashboard/proposals"
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/20 transition-transform hover:scale-[1.02]"
+        >
+          <Plus size={16} /> Nueva propuesta
+        </Link>
+      </div>
 
-      <main>
-        {/* HERO — demo real, no un titular de marketing */}
-        <section className="relative min-h-dvh overflow-hidden">
-          <DemoHeroPreview />
-        </section>
-
-        {/* STATS */}
-        <section className="mx-auto w-[min(1120px,92vw)] py-24">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {STATS.map((s, i) => (
-              <Reveal key={s.value} delay={i * 100}>
-                <div className="rounded-2xl border border-border bg-surface p-7">
-                  <p className="text-gradient-gold font-display text-4xl">{s.value}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.label}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        {/* FEATURES */}
-        <section id="producto" className="border-y border-border bg-secondary/40 py-24">
-          <div className="mx-auto w-[min(1120px,92vw)]">
-            <Reveal>
-              <h2 className="max-w-2xl font-display text-4xl text-foreground md:text-5xl">
-                Un producto, dos caras: la agencia trabaja rápido y el cliente se emociona
-              </h2>
-            </Reveal>
-            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f, i) => (
-                <Reveal key={f.title} delay={(i % 3) * 100}>
-                  <article className="group h-full rounded-2xl border border-border bg-background p-7 transition-colors hover:border-primary/50">
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-secondary text-primary transition-transform group-hover:scale-110">
-                      <f.icon size={20} />
-                    </span>
-                    <h3 className="mt-5 text-xl text-foreground">{f.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
-                  </article>
-                </Reveal>
-              ))}
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {metrics.map((m) => (
+          <div key={m.label} className="rounded-2xl border border-border bg-surface p-7">
+            <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+              <m.icon size={16} />
+              <span className="text-xs font-medium uppercase tracking-wide">{m.label}</span>
             </div>
+            <p className="text-gradient-gold font-display text-4xl">{m.value}</p>
           </div>
-        </section>
+        ))}
+      </div>
 
-        {/* CÓMO FUNCIONA */}
-        <section className="mx-auto w-[min(1120px,92vw)] py-24">
-          <Reveal>
-            <p className="text-xs uppercase tracking-[0.35em] text-primary">Cómo funciona</p>
-          </Reveal>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 120}>
-                <div className="rounded-2xl border border-border p-7">
-                  <span className="font-display text-5xl text-muted-foreground/50">{s.n}</span>
-                  <h3 className="mt-4 text-2xl text-foreground">{s.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+      {list.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
+          <p className="text-sm text-muted-foreground">Aún no hay propuestas. Crea la primera para empezar.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((p) => {
+            const theme = (p.theme_key as ThemeKey) ?? detectTheme(p.destination);
+            const cover = resolveCoverImage(p.cover_image_url, theme);
+
+            return (
+              <div key={p.id} className="overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-primary/40">
+                <div className="relative h-32 w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cover} alt={p.destination} className="absolute inset-0 h-full w-full object-cover" />
+                  <span className={`absolute right-2 top-2 rounded-full px-2.5 py-1 text-[11px] font-medium ${STATUS_COLOR[p.status]}`}>
+                    {STATUS_LABEL[p.status]}
+                  </span>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        {/* PRECIOS */}
-        <section id="precios" className="border-y border-border bg-secondary/40 py-24">
-          <div className="mx-auto w-[min(1120px,92vw)]">
-            <Reveal>
-              <h2 className="font-display text-4xl text-foreground md:text-5xl">Un plan para cada tamaño de agencia</h2>
-            </Reveal>
-            <div className="mt-12 grid gap-5 sm:grid-cols-3">
-              {PLANS.map((plan, i) => (
-                <Reveal key={plan.name} delay={i * 100}>
-                  <div
-                    className={`flex h-full flex-col rounded-2xl border bg-background p-7 ${
-                      plan.popular ? 'border-primary shadow-lg shadow-primary/10' : 'border-border'
-                    }`}
-                  >
-                    {plan.popular && (
-                      <span className="mb-3 inline-block w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                        Más popular
-                      </span>
-                    )}
-                    <h3 className="text-lg text-foreground">{plan.name}</h3>
-                    <p className="mb-1 font-display text-3xl text-foreground">{plan.price}</p>
-                    <p className="mb-6 flex-1 text-sm text-muted-foreground">{plan.desc}</p>
-                    <Link
-                      href="/auth/signup"
-                      className="rounded-xl bg-primary py-2.5 text-center text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
-                    >
-                      Empezar prueba gratis
+                <div className="p-4">
+                  <p className="mb-0.5 text-xs text-muted-foreground">{p.destination}</p>
+                  <h3 className="mb-1 truncate text-sm font-semibold text-foreground">{p.title}</h3>
+                  <p className="mb-3 text-xs text-muted-foreground">{p.client_name}</p>
+                  <div className="flex items-center gap-3 text-xs">
+                    <Link href={`/dashboard/editor/${p.id}`} className="font-medium text-muted-foreground hover:underline">
+                      Editar
                     </Link>
+                    <a href={`/p/${p.public_slug}`} target="_blank" className="font-medium text-primary hover:underline">
+                      Ver micrositio
+                    </a>
+                    <span className="ml-auto flex items-center gap-1 text-muted-foreground">
+                      <Eye size={12} /> {p.views ?? 0}
+                    </span>
                   </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA FINAL */}
-        <section className="mx-auto w-[min(1120px,92vw)] pb-28 pt-24">
-          <Reveal>
-            <div className="rounded-3xl border border-primary/30 bg-surface p-10 text-center shadow-xl shadow-primary/5 md:p-16">
-              <h2 className="mx-auto max-w-2xl font-display text-4xl text-foreground md:text-5xl">
-                Enseña la demo a tu próximo cliente esta misma semana
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-                15 días de prueba gratis, marca blanca incluida en Pro, propuestas ilimitadas.
-              </p>
-              <Link
-                href="/auth/signup"
-                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 font-medium text-primary-foreground transition-transform hover:scale-[1.03]"
-              >
-                Empezar prueba gratis <ArrowRight size={16} />
-              </Link>
-            </div>
-          </Reveal>
-        </section>
-      </main>
-
-      <Reveal>
-        <footer className="border-t border-border py-10">
-          <div className="mx-auto flex w-[min(1120px,92vw)] flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-            <span>© 2026 Rutas · Propuestas de viaje para agencias</span>
-            <span>Software para agencias de viaje</span>
-          </div>
-        </footer>
-      </Reveal>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

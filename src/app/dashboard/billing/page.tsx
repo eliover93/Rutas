@@ -1,10 +1,12 @@
 import { Check, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { createCheckoutSession, createPortalSession } from './actions';
+import { stripe, planFromPriceId, type PlanKey } from '@/lib/stripe';
+import { createCheckoutSession, changePlan, cancelSubscription, resumeSubscription, createPortalSession } from './actions';
+import { ConfirmButton } from '@/components/dashboard/ConfirmButton';
 
 const PLANS = [
   {
-    key: 'starter',
+    key: 'starter' as const,
     name: 'Starter',
     price: '29€/mes',
     desc: 'Para empezar a mandar propuestas con efecto wow',
@@ -12,7 +14,7 @@ const PLANS = [
     popular: false,
   },
   {
-    key: 'pro',
+    key: 'pro' as const,
     name: 'Pro',
     price: '59€/mes',
     desc: 'Para agencias que quieren su marca en cada propuesta',
@@ -20,24 +22,16 @@ const PLANS = [
     popular: true,
   },
   {
-    key: 'team',
+    key: 'team' as const,
     name: 'Team',
     price: '99€/mes',
     desc: 'Para equipos que trabajan juntos sobre las mismas propuestas',
     features: ['Todo lo de Pro', 'Hasta 5 agentes colaboradores', 'Analíticas de visualización'],
     popular: false,
   },
-] as const;
+];
 
-const PLAN_ORDER = ['starter', 'pro', 'team'] as const;
-
-const STATUS_LABEL: Record<string, string> = {
-  trialing: 'En prueba gratuita',
-  active: 'Activa',
-  past_due: 'Pago pendiente',
-  expired: 'Prueba caducada',
-  canceled: 'Cancelada',
-};
+const PLAN_ORDER: PlanKey[] = ['starter', 'pro', 'team'];
 
 export default async function BillingPage() {
   const supabase = await createClient();
@@ -51,9 +45,26 @@ export default async function BillingPage() {
     .single();
 
   const hasActiveSubscription = agency?.subscription_status === 'active' && agency?.stripe_customer_id;
-  const currentIndex = PLAN_ORDER.indexOf((agency?.plan ?? 'starter') as (typeof PLAN_ORDER)[number]);
-  const upgradePlans = PLANS.filter((_, i) => i > currentIndex);
-  const currentPlan = PLANS.find((p) => p.key === agency?.plan);
+
+  // Estado en vivo directo de Stripe — nunca desincronizado, ni tenemos que
+  // esperar a que llegue un webhook para reflejar un cambio reciente.
+  let currentPlan: PlanKey | null = null;
+  let cancelAtPeriodEnd = false;
+  let periodEndLabel: string | null = null;
+
+  if (hasActiveSubscription && agency.stripe_subscription_id) {
+    const subscription = await stripe.subscriptions.retrieve(agency.stripe_subscription_id);
+    currentPlan = planFromPriceId(subscription.items.data[0]?.price?.id);
+    cancelAtPeriodEnd = subscription.cancel_at_period_end;
+    periodEndLabel = new Date(subscription.current_period_end * 1000).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  const currentInfo = PLANS.find((p) => p.key === currentPlan);
+  const otherPlans = PLANS.filter((p) => p.key !== currentPlan);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
@@ -61,31 +72,61 @@ export default async function BillingPage() {
 
       {hasActiveSubscription ? (
         <div className="space-y-8">
-          {/* Estado actual — compacto, no es la estrella de la pantalla */}
-          <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-5">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Tu plan actual</p>
-              <p className="font-display text-xl text-foreground">
-                {currentPlan?.name ?? agency?.plan} · {currentPlan?.price}
-              </p>
-              <p className="text-xs text-muted-foreground">{STATUS_LABEL[agency!.subscription_status]}</p>
+          {/* Estado actual — compacto */}
+          <div className="rounded-2xl border border-border bg-surface p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Tu plan actual</p>
+                <p className="font-display text-xl text-foreground">
+                  {currentInfo?.name ?? currentPlan} · {currentInfo?.price}
+                </p>
+              </div>
+              <form action={createPortalSession}>
+                <button
+                  type="submit"
+                  className="text-sm font-medium text-muted-foreground underline-offset-2 hover:underline"
+                >
+                  Ver facturas y método de pago
+                </button>
+              </form>
             </div>
-            <form action={createPortalSession.bind(null, false)}>
-              <button type="submit" className="text-sm font-medium text-muted-foreground underline-offset-2 hover:underline">
-                Facturas, pago y cancelación
-              </button>
-            </form>
+
+            {cancelAtPeriodEnd ? (
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-secondary px-4 py-3">
+                <p className="text-sm text-foreground">
+                  Tu suscripción termina el <strong>{periodEndLabel}</strong> — hasta entonces sigues teniendo acceso
+                  completo.
+                </p>
+                <form action={resumeSubscription}>
+                  <button type="submit" className="whitespace-nowrap text-sm font-medium text-primary hover:underline">
+                    Reactivar
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="mt-4 flex justify-end">
+                <form action={cancelSubscription}>
+                  <ConfirmButton
+                    confirmText={`¿Seguro que quieres cancelar tu suscripción? Conservarás el acceso hasta el ${periodEndLabel}, luego no se te volverá a cobrar.`}
+                    className="text-sm text-muted-foreground underline-offset-2 hover:text-red-600 hover:underline"
+                  >
+                    Cancelar suscripción
+                  </ConfirmButton>
+                </form>
+              </div>
+            )}
           </div>
 
-          {/* Upsell — solo si hay algo por encima del plan actual */}
-          {upgradePlans.length > 0 && (
-            <div>
-              <div className="mb-5 flex items-center gap-2">
-                <Sparkles size={18} className="text-primary" />
-                <h2 className="font-display text-xl text-foreground">Saca más partido a Rutas</h2>
-              </div>
-              <div className={`grid grid-cols-1 gap-5 ${upgradePlans.length > 1 ? 'sm:grid-cols-2' : ''}`}>
-                {upgradePlans.map((plan) => (
+          {/* Cambiar de plan — directo por API, sin salir de Rutas */}
+          <div>
+            <div className="mb-5 flex items-center gap-2">
+              <Sparkles size={18} className="text-primary" />
+              <h2 className="font-display text-xl text-foreground">Cambiar de plan</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {otherPlans.map((plan) => {
+                const isUpgrade = PLAN_ORDER.indexOf(plan.key) > PLAN_ORDER.indexOf(currentPlan!);
+                return (
                   <div
                     key={plan.key}
                     className={`flex flex-col rounded-2xl border p-6 ${
@@ -108,25 +149,23 @@ export default async function BillingPage() {
                         </li>
                       ))}
                     </ul>
-                    <form action={createPortalSession.bind(null, true)}>
-                      <button
-                        type="submit"
+                    <form action={changePlan.bind(null, plan.key)}>
+                      <ConfirmButton
+                        confirmText={
+                          isUpgrade
+                            ? `Vas a subir a ${plan.name}. Se te cobrará la diferencia prorrateada ahora mismo con tu método de pago guardado. ¿Confirmas?`
+                            : `Vas a bajar a ${plan.name}. El cambio se aplica ahora, con el ajuste prorrateado correspondiente. ¿Confirmas?`
+                        }
                         className="w-full rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
                       >
-                        Subir a {plan.name}
-                      </button>
+                        {isUpgrade ? `Subir a ${plan.name}` : `Bajar a ${plan.name}`}
+                      </ConfirmButton>
                     </form>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
-
-          {upgradePlans.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Ya tienes nuestro plan más completo — gracias por confiar en Rutas.
-            </p>
-          )}
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
