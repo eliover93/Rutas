@@ -35,13 +35,25 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
 
   const theme: ThemeKey = (proposal.theme_key as ThemeKey) ?? detectTheme(proposal.destination);
 
+  const { data: agency } = await supabase
+    .from('agencies')
+    .select('plan, brand_color, logo_url')
+    .eq('id', proposal.agency_id)
+    .single();
+
+  const hasBranding = agency?.plan === 'pro' || agency?.plan === 'team';
+  const themeStyle = {
+    ...themeVars(theme),
+    ...(hasBranding && agency?.brand_color ? { '--color-primary': agency.brand_color } : {}),
+  };
+
   return (
     <div className="min-h-screen bg-background py-0 sm:py-10">
       <div
         className="mx-auto max-w-5xl overflow-hidden bg-white pb-24 shadow-none sm:rounded-3xl sm:shadow-2xl sm:pb-8 font-[var(--font-theme)]"
-        style={{ ...themeVars(theme), color: 'var(--color-text)' }}
+        style={{ ...themeStyle, color: 'var(--color-text)' }}
       >
-        <Hero proposal={proposal} theme={theme} />
+        <Hero proposal={proposal} theme={theme} agencyLogoUrl={hasBranding ? agency?.logo_url : null} />
         {proposal.client_message && (
           <Reveal>
             <ClientMessage message={proposal.client_message} />

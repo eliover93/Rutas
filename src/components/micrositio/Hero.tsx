@@ -1,7 +1,15 @@
 import type { Proposal, ThemeKey } from '@/types/database.types';
 import { resolveCoverImage } from '@/lib/coverImage';
 
-export function Hero({ proposal, theme }: { proposal: Proposal; theme: ThemeKey }) {
+export function Hero({
+  proposal,
+  theme,
+  agencyLogoUrl,
+}: {
+  proposal: Proposal;
+  theme: ThemeKey;
+  agencyLogoUrl?: string | null;
+}) {
   const src = resolveCoverImage(proposal.cover_image_url, theme);
 
   return (
@@ -16,6 +24,15 @@ export function Hero({ proposal, theme }: { proposal: Proposal; theme: ThemeKey 
             'linear-gradient(to top, oklch(0.16 0.03 250 / 0.9), oklch(0.16 0.03 250 / 0.35) 55%, oklch(0.16 0.03 250 / 0.1))',
         }}
       />
+
+      {agencyLogoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={agencyLogoUrl}
+          alt="Logo de la agencia"
+          className="absolute left-6 top-6 h-9 max-w-[140px] object-contain drop-shadow"
+        />
+      )}
 
       <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
         <span
