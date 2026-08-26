@@ -21,6 +21,17 @@ function mapStripeStatus(status: Stripe.Subscription.Status): 'trialing' | 'acti
   }
 }
 
+// Traduce el price_id real de Stripe a nuestro nombre de plan interno.
+// Necesario para los cambios que vienen del Portal de Facturación, donde
+// no controlamos los metadatos como sí hacemos en nuestro propio checkout.
+function planFromPriceId(priceId: string | undefined): 'starter' | 'pro' | 'team' | null {
+  if (!priceId) return null;
+  if (priceId === process.env.STRIPE_PRICE_STARTER) return 'starter';
+  if (priceId === process.env.STRIPE_PRICE_PRO) return 'pro';
+  if (priceId === process.env.STRIPE_PRICE_TEAM) return 'team';
+  return null;
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
   const signature = (await headers()).get('stripe-signature');
@@ -36,9 +47,13 @@ export async function POST(req: Request) {
 
   switch (event.type) {
     // Primer pago: vincula el customer/subscription de Stripe a la agencia
+    // y registra qué plan compró (venía en los metadatos que pusimos al
+    // crear la sesión de checkout).
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       const agencyId = session.metadata?.agency_id;
+      const plan = session.metadata?.plan;
+
       if (agencyId && session.subscription) {
         await supabase
           .from('agencies')
@@ -46,20 +61,26 @@ export async function POST(req: Request) {
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
             subscription_status: 'active',
+            ...(plan ? { plan } : {}),
           })
           .eq('id', agencyId);
       }
       break;
     }
 
-    // Cualquier cambio de estado de la suscripción (impago, reactivación, etc.)
+    // Cualquier cambio de estado O de plan de la suscripción — incluye los
+    // cambios hechos desde el Portal de Facturación de Stripe, no solo los
+    // que pasan por nuestro propio checkout.
     case 'customer.subscription.updated':
     case 'customer.subscription.created': {
       const sub = event.data.object as Stripe.Subscription;
       const status = mapStripeStatus(sub.status);
       const agencyId = sub.metadata?.agency_id;
+      const plan = planFromPriceId(sub.items.data[0]?.price?.id);
 
-      const query = supabase.from('agencies').update({ subscription_status: status });
+      const query = supabase
+        .from('agencies')
+        .update({ subscription_status: status, ...(plan ? { plan } : {}) });
       await (agencyId ? query.eq('id', agencyId) : query.eq('stripe_subscription_id', sub.id));
       break;
     }
