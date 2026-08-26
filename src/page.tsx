@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { Field, TextArea } from '@/components/dashboard/FormField';
 import { UnsplashField } from '@/components/dashboard/UnsplashField';
@@ -15,8 +16,15 @@ const THEMES = [
   { value: 'safari', label: 'Safari / Savanna' },
 ];
 
-export default async function EditorPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditorPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
   const { id } = await params;
+  const { saved, error: errorParam } = await searchParams;
   const supabase = await createClient();
 
   const { data: proposal } = await supabase.from('proposals').select('*').eq('id', id).single();
@@ -37,6 +45,17 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
         </a>
       </div>
 
+      {saved && (
+        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <CheckCircle2 size={16} /> Cambios guardados correctamente.
+        </div>
+      )}
+      {errorParam && (
+        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          <AlertCircle size={16} /> {decodeURIComponent(errorParam)}
+        </div>
+      )}
+
       {/* Detalles generales */}
       <form
         action={updateProposalDetails.bind(null, proposal.id)}
@@ -44,6 +63,23 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
       >
         <h2 className="font-medium text-foreground">Detalles generales</h2>
         <Field label="Título" name="title" defaultValue={proposal.title} />
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Estado</label>
+          <select
+            name="status"
+            defaultValue={proposal.status}
+            className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+          >
+            <option value="draft">Borrador (no visible para el cliente)</option>
+            <option value="sent">Enviado (ya visible en el enlace público)</option>
+            <option value="accepted">Aceptado</option>
+            <option value="rejected">Rechazado</option>
+          </select>
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            El micrositio público solo se abre en Enviado o Aceptado — en Borrador o Rechazado da 404 a propósito.
+          </p>
+        </div>
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Tema visual</label>
