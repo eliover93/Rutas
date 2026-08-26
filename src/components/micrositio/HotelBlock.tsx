@@ -26,7 +26,7 @@ export function HotelBlock({ proposal }: { proposal: Proposal }) {
       </div>
       <div className="flex flex-col justify-center p-4">
         <p className="mb-1 flex items-center gap-1.5 text-xs uppercase tracking-wide text-slate-400">
-          <Hotel size={13} /> Alojamiento
+          <Hotel size={13} /> ALOJAMIENTO PRUEBA 123
         </p>
         <h3 className="font-semibold" style={{ color: 'var(--color-text)' }}>
           {proposal.hotel_name}
