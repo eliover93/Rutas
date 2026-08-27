@@ -76,7 +76,7 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
           )}
 
           <Reveal>
-            <HotelBlock proposal={proposal} />
+            <HotelBlock days={days ?? []} destination={proposal.destination} />
           </Reveal>
         </div>
 
