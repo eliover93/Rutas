@@ -121,24 +121,6 @@ export default async function EditorPage({
 
         <Field label="Precio total (€)" name="price" type="number" defaultValue={proposal.price ?? ''} />
 
-        <h3 className="pt-2 text-sm font-medium text-foreground">Hotel</h3>
-        <Field label="Nombre del hotel" name="hotel_name" defaultValue={proposal.hotel_name ?? ''} />
-        <Field
-          label="Estrellas (1-5)"
-          name="hotel_stars"
-          type="number"
-          min={1}
-          max={5}
-          defaultValue={proposal.hotel_stars ?? ''}
-        />
-        <UnsplashField
-          label="Foto del hotel"
-          name="hotel_image_url"
-          defaultValue={proposal.hotel_image_url ?? ''}
-          creditName="hotel_image_credit"
-          creditUrlName="hotel_image_credit_url"
-        />
-
         <h3 className="pt-2 text-sm font-medium text-foreground">Precio: qué incluye (una línea por concepto)</h3>
         <TextArea name="price_includes" defaultValue={(proposal.price_includes ?? []).join('\n')} />
         <h3 className="text-sm font-medium text-foreground">Precio: qué no incluye</h3>
@@ -179,6 +161,7 @@ export default async function EditorPage({
             </div>
             <Field label="Título" name="title" defaultValue={day.title ?? ''} />
             <TextArea label="Descripción" name="description" defaultValue={day.description ?? ''} />
+            <Field label="Alojamiento esta noche (opcional)" name="accommodation" defaultValue={day.accommodation ?? ''} />
             <UnsplashField
               label="Foto del día"
               name="image_url"
@@ -222,6 +205,11 @@ export default async function EditorPage({
           </div>
           <Field label="Título" name="title" />
           <TextArea label="Descripción" name="description" />
+          <Field label="Alojamiento esta noche (opcional)" name="accommodation" />
+          <p className="text-[11px] text-muted-foreground">
+            Si varios días comparten el mismo hotel, repite exactamente el mismo nombre — el micrositio los agrupa
+            solo. Déjalo vacío si ese día no incluye pernocta.
+          </p>
           <UnsplashField label="Foto del día" name="image_url" creditName="image_credit" creditUrlName="image_credit_url" />
           <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             Añadir día
