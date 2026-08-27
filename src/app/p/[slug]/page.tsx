@@ -61,31 +61,28 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
         )}
         <QuickFacts proposal={proposal} days={days ?? []} />
 
-        <div className="grid grid-cols-1 gap-8 p-8 lg:grid-cols-[1.4fr_1fr]">
-          <div className="space-y-6">
-            {(days ?? []).length > 0 && (
-              <section>
-                <h2 className="mb-4 font-[var(--font-theme)] text-lg font-semibold">Itinerario día a día</h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {(days ?? []).map((day, i) => (
-                    <Reveal key={day.id} delay={(i % 2) * 100}>
-                      <DayCard day={day} />
-                    </Reveal>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
+        <div className="space-y-10 p-8">
+          {(days ?? []).length > 0 && (
+            <section>
+              <h2 className="mb-4 font-[var(--font-theme)] text-lg font-semibold">Itinerario día a día</h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {(days ?? []).map((day, i) => (
+                  <Reveal key={day.id} delay={(i % 3) * 100}>
+                    <DayCard day={day} />
+                  </Reveal>
+                ))}
+              </div>
+            </section>
+          )}
 
-          <div className="space-y-6">
-            <Reveal>
-              <HotelBlock proposal={proposal} />
-            </Reveal>
-            <Reveal delay={100}>
-              <PriceBreakdown proposal={proposal} />
-            </Reveal>
-          </div>
+          <Reveal>
+            <HotelBlock proposal={proposal} />
+          </Reveal>
         </div>
+
+        <Reveal>
+          <PriceBreakdown proposal={proposal} />
+        </Reveal>
       </div>
 
       <CtaBar proposal={proposal} />
