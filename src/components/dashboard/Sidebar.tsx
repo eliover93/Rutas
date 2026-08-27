@@ -113,7 +113,7 @@ export function Sidebar() {
       </AnimatePresence>
 
       {/* Sidebar fija — solo escritorio */}
-      <aside className="hidden h-screen w-60 flex-shrink-0 flex-col border-r border-border bg-surface md:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 flex-shrink-0 flex-col border-r border-border bg-surface md:flex">
         <SidebarContent pathname={pathname} />
       </aside>
     </>
