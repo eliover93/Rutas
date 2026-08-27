@@ -5,16 +5,12 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50" suppressHydrationWarning>
       <div className="glass-panel mx-auto mt-4 flex w-[min(1120px,92vw)] items-center justify-between rounded-full px-5 py-3">
-        {/* Columna vacía a la izquierda: junto con el ancho fijo de la nav
-            de la derecha, mantiene el logo centrado de verdad. */}
-        <div className="flex-1" aria-hidden />
-
-        <Link href="/" className="flex flex-1 items-center justify-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Compass size={20} className="text-primary" />
           <span className="font-display text-lg tracking-tight text-foreground">Rutas</span>
         </Link>
 
-        <nav className="flex flex-1 items-center justify-end gap-2 text-sm">
+        <nav className="flex items-center gap-2 text-sm">
           <a
             href="/p/demo-kenia"
             target="_blank"
