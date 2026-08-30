@@ -35,6 +35,7 @@ export interface Proposal {
   // Bloque hotel
   hotel_name: string | null;
   hotel_stars: number | null;
+  hotel_place_id: string | null;
   hotel_image_url: string | null;
   hotel_image_credit: string | null;
   hotel_image_credit_url: string | null;
