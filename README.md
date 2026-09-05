@@ -55,3 +55,5 @@
 - Registrar el webhook en el Dashboard de Stripe (producción) y `stripe listen` en local
 - Branding personalizado (logo/colores propios) para planes Pro/Team
 - Analíticas de visualización para el plan Team
+
+- 
