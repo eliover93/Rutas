@@ -5,13 +5,14 @@ export function Hero({
   proposal,
   theme,
   agencyLogoUrl,
+  agencyName,
 }: {
   proposal: Proposal;
   theme: ThemeKey;
   agencyLogoUrl?: string | null;
+  agencyName?: string | null;
 }) {
   const src = resolveCoverImage(proposal.cover_image_url, theme);
-
   return (
     <div className="relative h-[420px] w-full overflow-hidden sm:h-[480px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -24,16 +25,18 @@ export function Hero({
             'linear-gradient(to top, oklch(0.16 0.03 250 / 0.9), oklch(0.16 0.03 250 / 0.35) 55%, oklch(0.16 0.03 250 / 0.1))',
         }}
       />
-
       {agencyLogoUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={agencyLogoUrl}
-          alt="Logo de la agencia"
-          className="absolute left-6 top-6 h-9 max-w-[140px] object-contain drop-shadow"
-        />
+        <div className="absolute left-6 top-6 flex items-center gap-3 rounded-2xl bg-white/95 py-2 pl-2 pr-4 shadow-lg backdrop-blur-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={agencyLogoUrl} alt={agencyName ?? 'Logo de la agencia'} className="h-11 w-11 rounded-xl object-contain" />
+          {agencyName && (
+            <div className="leading-tight">
+              <p className="text-[10px] uppercase tracking-wide text-slate-400">Un viaje de</p>
+              <p className="text-sm font-semibold text-slate-800">{agencyName}</p>
+            </div>
+          )}
+        </div>
       )}
-
       <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
         <span
           className="text-on-image mb-3 inline-block rounded-full px-3 py-1 text-xs font-medium tracking-wide"
@@ -46,9 +49,8 @@ export function Hero({
         </h1>
         <p className="text-on-image mt-2 text-sm text-white/90">Propuesta para {proposal.client_name}</p>
       </div>
-
       {proposal.cover_image_credit && (
-        <a
+        
           href={proposal.cover_image_credit_url ?? '#'}
           target="_blank"
           className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10px] text-white/70 backdrop-blur-sm hover:text-white"
