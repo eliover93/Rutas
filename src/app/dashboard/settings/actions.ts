@@ -5,14 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function updateBranding(formData: FormData) {
-  // --- DEBUG TEMPORAL: nos dice exactamente qué llegó al servidor ---
-  const logoFileDebug = formData.get('logo_file');
-  const debugInfo =
-    logoFileDebug instanceof File
-      ? `Recibido como File: nombre="${logoFileDebug.name}", tamaño=${logoFileDebug.size} bytes, tipo="${logoFileDebug.type}"`
-      : `NO es un File. Tipo real: ${typeof logoFileDebug}, valor: "${String(logoFileDebug)}"`;
-  // -------------------------------------------------------------
-
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -55,11 +47,10 @@ export async function updateBranding(formData: FormData) {
 
     revalidatePath('/dashboard/settings');
     revalidatePath('/p', 'layout');
-
-    redirect(`/dashboard/settings?error=${encodeURIComponent('DEBUG (todo OK) — ' + debugInfo)}`);
   } catch (err) {
-    if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) throw err;
     const message = err instanceof Error ? err.message : 'Error desconocido';
-    redirect(`/dashboard/settings?error=${encodeURIComponent('DEBUG (con error) — ' + debugInfo + ' | Error real: ' + message)}`);
+    redirect(`/dashboard/settings?error=${encodeURIComponent(message)}`);
   }
+
+  redirect('/dashboard/settings?saved=1');
 }
