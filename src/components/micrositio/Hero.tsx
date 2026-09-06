@@ -31,7 +31,7 @@ export function Hero({
           <img src={agencyLogoUrl} alt={agencyName ?? 'Logo de la agencia'} className="h-11 w-11 rounded-xl object-contain" />
           {agencyName && (
             <div className="leading-tight">
-              <p className="text-[10px] uppercase tracking-wide text-slate-400">Un viaje de</p>
+              <p className="text-[10px] uppercase tracking-wide text-slate-600">Un viaje de</p>
               <p className="text-sm font-semibold text-slate-800">{agencyName}</p>
             </div>
           )}
