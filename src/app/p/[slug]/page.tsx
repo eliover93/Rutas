@@ -30,14 +30,13 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
     .eq('proposal_id', proposal.id)
     .order('order_index');
 
-  // Fire-and-forget: no bloquea el render por una métrica.
   supabase.rpc('increment_proposal_views', { p_slug: slug });
 
   const theme: ThemeKey = (proposal.theme_key as ThemeKey) ?? detectTheme(proposal.destination);
 
   const { data: agency } = await supabase
     .from('agencies')
-    .select('plan, brand_color, logo_url')
+    .select('name, plan, brand_color, logo_url')
     .eq('id', proposal.agency_id)
     .single();
 
@@ -53,7 +52,12 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
         className="mx-auto max-w-5xl overflow-hidden bg-white pb-24 shadow-none sm:rounded-3xl sm:shadow-2xl sm:pb-8 font-[var(--font-theme)]"
         style={{ ...themeStyle, color: 'var(--color-text)' }}
       >
-        <Hero proposal={proposal} theme={theme} agencyLogoUrl={hasBranding ? agency?.logo_url : null} />
+        <Hero
+          proposal={proposal}
+          theme={theme}
+          agencyLogoUrl={hasBranding ? agency?.logo_url : null}
+          agencyName={hasBranding ? agency?.name : null}
+        />
         {proposal.client_message && (
           <Reveal>
             <ClientMessage message={proposal.client_message} />
