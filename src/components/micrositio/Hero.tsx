@@ -51,7 +51,7 @@ export function Hero({
       </div>
       {proposal.cover_image_credit && (
         
-          href={proposal.cover_image_credit_url ?? '#'}
+          <a href={proposal.cover_image_credit_url ?? '#'}
           target="_blank"
           className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10px] text-white/70 backdrop-blur-sm hover:text-white"
         >
