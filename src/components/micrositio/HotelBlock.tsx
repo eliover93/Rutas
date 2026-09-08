@@ -23,7 +23,7 @@ export function HotelBlock({ days, destination }: { days: ItineraryDay[]; destin
           `${hotelName}, ${destination}`
         )}`;
         return (
-          <div key={hotelName} className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+          <div key={hotelName} className="hover-lift flex items-center gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
             <div
               className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
               style={{ background: 'var(--color-accent)' }}
