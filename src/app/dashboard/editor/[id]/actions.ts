@@ -13,6 +13,19 @@ function toArray(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+function parseBreakdown(value: FormDataEntryValue | null): { label: string; amount: number }[] {
+  return toArray(value)
+    .map((line) => {
+      const idx = line.lastIndexOf(':');
+      if (idx === -1) return null;
+      const label = line.slice(0, idx).trim();
+      const amountRaw = line.slice(idx + 1).trim().replace(/[€\s]/g, '').replace(',', '.');
+      const amount = Number(amountRaw);
+      return label && !Number.isNaN(amount) ? { label, amount } : null;
+    })
+    .filter((x): x is { label: string; amount: number } => x !== null);
+}
+
 async function revalidateProposal(supabase: Awaited<ReturnType<typeof createClient>>, proposalId: string) {
   const { data } = await supabase.from('proposals').select('public_slug').eq('id', proposalId).single();
   revalidatePath(`/dashboard/editor/${proposalId}`);
@@ -36,6 +49,7 @@ export async function updateProposalDetails(proposalId: string, formData: FormDa
         price: formData.get('price') ? Number(formData.get('price')) : null,
         price_includes: toArray(formData.get('price_includes')),
         price_excludes: toArray(formData.get('price_excludes')),
+        price_breakdown: parseBreakdown(formData.get('price_breakdown')),
       })
       .eq('id', proposalId);
 
