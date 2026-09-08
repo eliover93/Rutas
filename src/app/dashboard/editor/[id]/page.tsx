@@ -130,7 +130,7 @@ export default async function EditorPage({
         <TextArea
           name="price_breakdown"
           defaultValue={(proposal.price_breakdown ?? []).map((b: { label: string; amount: number }) => `${b.label}: ${b.amount}`).join('\n')}
-          
+          />
         <p className="text-[11px] text-muted-foreground">
           Una línea por categoría, formato "Etiqueta: importe" — ej. "Vuelos: 450". Aparece desglosado justo debajo
           del precio total en el micrositio. Déjalo vacío si no quieres mostrar desglose.
