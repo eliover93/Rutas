@@ -12,7 +12,7 @@ const CATEGORY_LABEL: Record<DayCategory, string> = {
 
 export function DayCard({ day }: { day: ItineraryDay }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-shadow hover:shadow-md">
+    <div className="hover-lift overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div className="relative h-36 w-full" style={{ background: 'var(--color-accent)' }}>
         {day.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
