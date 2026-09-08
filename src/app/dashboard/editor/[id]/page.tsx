@@ -126,6 +126,16 @@ export default async function EditorPage({
         <h3 className="text-sm font-medium text-foreground">Precio: qué no incluye</h3>
         <TextArea name="price_excludes" defaultValue={(proposal.price_excludes ?? []).join('\n')} />
 
+        <h3 className="pt-2 text-sm font-medium text-foreground">Desglose del presupuesto (opcional)</h3>
+        <TextArea
+          name="price_breakdown"
+          defaultValue={(proposal.price_breakdown ?? []).map((b) => `${b.label}: ${b.amount}`).join('\n')}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Una línea por categoría, formato "Etiqueta: importe" — ej. "Vuelos: 450". Aparece desglosado justo debajo
+          del precio total en el micrositio. Déjalo vacío si no quieres mostrar desglose.
+        </p>
+
         <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
           Guardar cambios
         </button>
