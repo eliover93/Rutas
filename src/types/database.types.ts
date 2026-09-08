@@ -42,6 +42,7 @@ export interface Proposal {
   // Desglose de precio
   price_includes: string[] | null;
   price_excludes: string[] | null;
+  price_breakdown: { label: string; amount: number }[] | null;
   views: number;
   cover_image_credit: string | null;
   cover_image_credit_url: string | null;
