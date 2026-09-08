@@ -4,6 +4,7 @@ import type { Proposal } from '@/types/database.types';
 export function PriceBreakdown({ proposal }: { proposal: Proposal }) {
   const includes = proposal.price_includes ?? [];
   const excludes = proposal.price_excludes ?? [];
+  const breakdown = proposal.price_breakdown ?? [];
 
   return (
     <div className="grid grid-cols-1 gap-6 px-8 py-8 md:grid-cols-[1fr_1.2fr_1.2fr] md:items-start" style={{ background: 'var(--color-text)' }}>
@@ -13,6 +14,17 @@ export function PriceBreakdown({ proposal }: { proposal: Proposal }) {
           <p className="mt-1 text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
             {proposal.price} €
           </p>
+
+          {breakdown.length > 0 && (
+            <div className="mt-4 space-y-1.5 border-t border-white/10 pt-3">
+              {breakdown.map((b) => (
+                <div key={b.label} className="flex items-center justify-between text-xs text-white/55">
+                  <span>{b.label}</span>
+                  <span className="font-medium text-white/80">{b.amount} €</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -28,7 +40,6 @@ export function PriceBreakdown({ proposal }: { proposal: Proposal }) {
           </ul>
         </div>
       )}
-
       {excludes.length > 0 && (
         <div>
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-white/40">No incluye</p>
