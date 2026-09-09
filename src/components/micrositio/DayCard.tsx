@@ -16,7 +16,7 @@ export function DayCard({ day }: { day: ItineraryDay }) {
       <div className="relative h-36 w-full" style={{ background: 'var(--color-accent)' }}>
         {day.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={day.image_url} alt={day.title ?? ''} className="absolute inset-0 h-full w-full object-cover" />
+          <img src={day.image_url} alt={day.title ?? ''} className="photo-vivid absolute inset-0 h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center">
             <Compass size={28} style={{ color: 'var(--color-primary)' }} className="opacity-50" />
