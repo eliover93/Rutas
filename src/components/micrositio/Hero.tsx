@@ -16,7 +16,7 @@ export function Hero({
   return (
     <div className="relative h-[420px] w-full overflow-hidden sm:h-[480px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={proposal.destination} className="absolute inset-0 h-full w-full object-cover" />
+      <img src={src} alt={proposal.destination} className="photo-vivid absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0" style={{ background: 'oklch(0.16 0.03 250 / 0.35)' }} />
       <div
         className="absolute inset-0"
