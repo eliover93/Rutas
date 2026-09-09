@@ -42,7 +42,7 @@ export function DayCard({ day }: { day: ItineraryDay }) {
 
         {day.image_credit && (
           
-            href={day.image_credit_url ?? '#'}
+           <a href={day.image_credit_url ?? '#'}
             target="_blank"
             className="absolute bottom-1 right-1 rounded bg-black/40 px-1.5 py-0.5 text-[9px] text-white/80 backdrop-blur-sm hover:text-white"
           >
