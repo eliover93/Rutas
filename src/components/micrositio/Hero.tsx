@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring } from 'motion/react';
 import type { Proposal, ThemeKey } from '@/types/database.types';
 import { resolveCoverImage } from '@/lib/coverImage';
 
@@ -18,8 +18,14 @@ export function Hero({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+
+  // El scroll en sí llega "a saltos" (rueda del ratón, trackpad) — el muelle
+  // (useSpring) suaviza esos saltos en un movimiento fluido, en vez de que
+  // la imagen refleje el scroll al instante y se sienta brusca.
+  const rawY = useTransform(scrollYProgress, [0, 1], ['0%', '16%']);
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+  const y = useSpring(rawY, { stiffness: 90, damping: 26, mass: 0.4 });
+  const scale = useSpring(rawScale, { stiffness: 90, damping: 26, mass: 0.4 });
 
   const src = resolveCoverImage(proposal.cover_image_url, theme);
 
@@ -66,11 +72,7 @@ export function Hero({
       </div>
 
       {proposal.cover_image_credit && (
-        
-         <a href={proposal.cover_image_credit_url ?? '#'}
-          target="_blank"
-          className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10px] text-white/70 backdrop-blur-sm hover:text-white"
-        >
+        <a href={proposal.cover_image_credit_url ?? '#'} target="_blank" className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10px] text-white/70 backdrop-blur-sm hover:text-white">
           Foto: {proposal.cover_image_credit} / Unsplash
         </a>
       )}
