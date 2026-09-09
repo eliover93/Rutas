@@ -119,4 +119,3 @@
   — hace que cualquier foto que suba una agencia se vea más viva, sin depender de lo buena que sea la foto original.
   */ .photo-vivid
   { filter: saturate(1.18) contrast(1.06); }
-}
