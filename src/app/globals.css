@@ -101,10 +101,12 @@
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .hover-lift:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px -12px oklch(0.22 0.035 250 / 0.18);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 48px -14px oklch(0.22 0.035 250 / 0.22);
 }
+
 @media (prefers-reduced-motion: reduce) {
   .hover-lift {
     transition: none;
@@ -112,6 +114,7 @@
   .hover-lift:hover {
     transform: none;
   }
+}
   /* Sube saturación y contraste en fotos de viaje
   — hace que cualquier foto que suba una agencia se vea más viva, sin depender de lo buena que sea la foto original.
   */ .photo-vivid
