@@ -22,7 +22,7 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
     .eq('public_slug', slug)
     .single();
 
-  if (!proposal) notFound();
+  if (!proposal || proposal.is_template) notFound();
 
   const { data: days } = await supabase
     .from('itinerary_days')
