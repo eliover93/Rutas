@@ -6,14 +6,23 @@ import { usePathname } from 'next/navigation';
 import { LayoutGrid, LayoutTemplate, Settings, Compass, LogOut, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { signOut } from '@/app/dashboard/actions';
+import { PlanUpsellCard } from './PlanUpsellCard';
 
 const NAV = [
   { href: '/dashboard', label: 'Propuestas', icon: LayoutGrid },
   { href: '/dashboard/templates', label: 'Plantillas', icon: LayoutTemplate },
-  { href: '/dashboard/settings', label: 'Ajustes / Branding', icon: Settings },
+  { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];
 
-function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function SidebarContent({
+  pathname,
+  plan,
+  onNavigate,
+}: {
+  pathname: string;
+  plan?: string | null;
+  onNavigate?: () => void;
+}) {
   return (
     <>
       <div className="flex items-center gap-2.5 px-6 py-5">
@@ -40,14 +49,9 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
         })}
       </nav>
 
+      <PlanUpsellCard plan={plan} />
+
       <div className="space-y-1 border-t border-border p-3">
-        <Link
-          href="/dashboard/billing"
-          onClick={onNavigate}
-          className="block rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/50"
-        >
-          Facturación
-        </Link>
         <button
           type="button"
           onClick={async () => {
@@ -64,13 +68,12 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ plan }: { plan?: string | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Barra superior — solo móvil */}
       <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:hidden">
         <Link href="/" className="flex items-center gap-2">
           <Compass size={18} className="text-primary" />
@@ -81,7 +84,6 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Cajón deslizante — solo móvil */}
       <AnimatePresence>
         {open && (
           <>
@@ -106,15 +108,14 @@ export function Sidebar() {
               >
                 <X size={20} />
               </button>
-              <SidebarContent pathname={pathname} onNavigate={() => setOpen(false)} />
+              <SidebarContent pathname={pathname} plan={plan} onNavigate={() => setOpen(false)} />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Sidebar fija — solo escritorio */}
       <aside className="sticky top-0 hidden h-screen w-60 flex-shrink-0 flex-col border-r border-border bg-surface md:flex">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} plan={plan} />
       </aside>
     </>
   );
