@@ -47,6 +47,7 @@ export interface Proposal {
   cover_image_credit: string | null;
   cover_image_credit_url: string | null;
   client_message: string | null;
+  is_template: boolean;
 }
 
 export type DayCategory = 'naturaleza' | 'gastronomia' | 'cultura' | 'aventura' | 'playa' | 'descanso';
