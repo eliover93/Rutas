@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: agency } = await supabase
     .from('agencies')
-    .select('trial_ends_at, subscription_status')
+    .select('trial_ends_at, subscription_status, plan')
     .eq('id', profile?.agency_id)
     .single();
 
@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <Sidebar />
+      <Sidebar plan={agency?.plan} />
       <div className="flex-1">
         {agency?.subscription_status === 'trialing' && daysLeft !== null && (
           <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">
