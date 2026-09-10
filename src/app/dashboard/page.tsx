@@ -36,6 +36,7 @@ export default async function DashboardPage() {
   const { data: proposals } = await supabase
     .from('proposals')
     .select('*')
+    .eq('is_template', false)
     .order('created_at', { ascending: false });
 
   const list = proposals ?? [];
