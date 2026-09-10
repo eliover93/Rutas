@@ -38,8 +38,8 @@ export async function createCheckoutSession(formData: FormData) {
     customer: agency?.stripe_customer_id ?? undefined,
     customer_email: agency?.stripe_customer_id ? undefined : userEmail ?? undefined,
     line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?success=1`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?canceled=1`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?success=1#plan`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?canceled=1#plan`,
     metadata: { agency_id: agencyId, plan },
     subscription_data: { metadata: { agency_id: agencyId, plan } },
   });
@@ -61,12 +61,10 @@ export async function changePlan(newPlan: PlanKey) {
   await stripe.subscriptions.update(agency.stripe_subscription_id, {
     items: [{ id: itemId, price: PRICE_IDS[newPlan] }],
     proration_behavior: 'create_prorations',
-    // Si venía marcada para cancelarse a fin de periodo, cambiar de plan
-    // cancela esa cancelación — sigue siendo cliente.
     cancel_at_period_end: false,
   });
 
-  revalidatePath('/dashboard/billing');
+  revalidatePath('/dashboard/settings');
 }
 
 // Cancela al final del periodo ya pagado — el cliente conserva el acceso
@@ -76,7 +74,7 @@ export async function cancelSubscription() {
   if (!agency?.stripe_subscription_id) throw new Error('No hay una suscripción activa que cancelar');
 
   await stripe.subscriptions.update(agency.stripe_subscription_id, { cancel_at_period_end: true });
-  revalidatePath('/dashboard/billing');
+  revalidatePath('/dashboard/settings');
 }
 
 // Por si cambia de opinión antes de que termine el periodo.
@@ -85,7 +83,7 @@ export async function resumeSubscription() {
   if (!agency?.stripe_subscription_id) throw new Error('No hay una suscripción que reactivar');
 
   await stripe.subscriptions.update(agency.stripe_subscription_id, { cancel_at_period_end: false });
-  revalidatePath('/dashboard/billing');
+  revalidatePath('/dashboard/settings');
 }
 
 // Para lo que sí conviene dejar en manos de Stripe: descargar facturas y
@@ -96,7 +94,7 @@ export async function createPortalSession() {
 
   const session = await stripe.billingPortal.sessions.create({
     customer: agency.stripe_customer_id,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings`,
   });
 
   redirect(session.url);
