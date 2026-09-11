@@ -9,6 +9,7 @@ export interface Agency {
   logo_url: string | null;
   brand_color: string;
   custom_domain: string | null;
+  custom_domain_verified: boolean;
   subscription_status: SubscriptionStatus;
   plan: Plan;
   stripe_customer_id: string | null;
@@ -32,14 +33,12 @@ export interface Proposal {
   public_slug: string;
   created_at: string;
   updated_at: string;
-  // Bloque hotel
   hotel_name: string | null;
   hotel_stars: number | null;
   hotel_place_id: string | null;
   hotel_image_url: string | null;
   hotel_image_credit: string | null;
   hotel_image_credit_url: string | null;
-  // Desglose de precio
   price_includes: string[] | null;
   price_excludes: string[] | null;
   price_breakdown: { label: string; amount: number }[] | null;
@@ -74,8 +73,6 @@ export interface Profile {
   created_at: string;
 }
 
-// Placeholder mínimo — para tipos generados de verdad y siempre sincronizados:
-// npx supabase gen types typescript --project-id <id> > src/types/database.types.ts
 export interface Database {
   public: {
     Tables: {
