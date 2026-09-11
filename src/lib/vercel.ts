@@ -1,5 +1,4 @@
 const VERCEL_API = 'https://api.vercel.com';
-const TEAM_QUERY = process.env.VERCEL_TEAM_ID ? `?teamId=${process.env.VERCEL_TEAM_ID}` : '';
 
 async function vercelFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${VERCEL_API}${path}`, {
@@ -17,7 +16,7 @@ async function vercelFetch(path: string, options: RequestInit = {}) {
 // agencia, típicamente por error), Vercel devuelve un error claro que
 // dejamos pasar tal cual.
 export async function addDomainToProject(domain: string) {
-  const res = await vercelFetch(`/v10/projects/${process.env.VERCEL_PROJECT_ID}/domains${TEAM_QUERY}`, {
+  const res = await vercelFetch(`/v10/projects/${process.env.VERCEL_PROJECT_ID}/domains`, {
     method: 'POST',
     body: JSON.stringify({ name: domain }),
   });
@@ -29,14 +28,14 @@ export async function addDomainToProject(domain: string) {
 // misconfigured: false significa que el DNS ya apunta bien y el dominio
 // está sirviendo tráfico de verdad.
 export async function getDomainConfig(domain: string): Promise<{ misconfigured: boolean }> {
-  const res = await vercelFetch(`/v6/domains/${domain}/config${TEAM_QUERY}`);
+  const res = await vercelFetch(`/v6/domains/${domain}/config`);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || 'Error consultando el dominio');
   return data;
 }
 
 export async function removeDomainFromProject(domain: string) {
-  const res = await vercelFetch(`/v9/projects/${process.env.VERCEL_PROJECT_ID}/domains/${domain}${TEAM_QUERY}`, {
+  const res = await vercelFetch(`/v9/projects/${process.env.VERCEL_PROJECT_ID}/domains/${domain}`, {
     method: 'DELETE',
   });
   if (!res.ok) {
