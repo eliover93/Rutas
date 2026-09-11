@@ -1,6 +1,6 @@
-import { Lock, CheckCircle2, AlertCircle, Check, Sparkles } from 'lucide-react';
+import { Lock, CheckCircle2, AlertCircle, Check, Sparkles, Globe } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { updateBranding } from './actions';
+import { updateBranding, connectDomain, checkDomainStatus, disconnectDomain } from './actions';
 import { LogoUploadField } from '@/components/dashboard/LogoUploadField';
 import { stripe, planFromPriceId, type PlanKey } from '@/lib/stripe';
 import {
@@ -96,7 +96,7 @@ export default async function SettingsPage({
       )}
 
       {/* Marca */}
-      <section className="mb-12">
+      <section className="mb-10">
         <h2 className="mb-4 font-display text-xl text-foreground">Marca</h2>
 
         {hasBrandingAccess ? (
@@ -125,21 +125,6 @@ export default async function SettingsPage({
               </p>
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Dominio personalizado</label>
-              <input
-                name="custom_domain"
-                type="text"
-                placeholder="viajes.tuagencia.com"
-                defaultValue={agency?.custom_domain ?? ''}
-                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
-              />
-              <p className="mt-1.5 text-[11px] text-muted-foreground">
-                Guardamos tu preferencia ya — la conexión DNS real (para que ese dominio funcione de verdad) es la
-                siguiente pieza que falta construir, todavía no está activa.
-              </p>
-            </div>
-
             <button
               type="submit"
               className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
@@ -163,6 +148,97 @@ export default async function SettingsPage({
           </div>
         )}
       </section>
+
+      {/* Dominio personalizado */}
+      {hasBrandingAccess && (
+        <section id="dominio" className="mb-10">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-xl text-foreground">
+            <Globe size={18} className="text-primary" /> Dominio personalizado
+          </h2>
+
+          <div className="rounded-2xl border border-border bg-surface p-6">
+            {!agency?.custom_domain ? (
+              <form action={connectDomain} className="space-y-3">
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  Tu dominio (ej. viajes.tuagencia.com)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    name="domain"
+                    type="text"
+                    placeholder="viajes.tuagencia.com"
+                    required
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+                  />
+                  <button
+                    type="submit"
+                    className="flex-shrink-0 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
+                  >
+                    Conectar
+                  </button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Después de conectarlo te diremos exactamente qué registro DNS añadir en tu proveedor de dominios.
+                </p>
+              </form>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Dominio conectado</p>
+                    <p className="font-display text-lg text-foreground">{agency.custom_domain}</p>
+                  </div>
+                  {agency.custom_domain_verified ? (
+                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                      <CheckCircle2 size={13} /> Verificado
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                      Pendiente de DNS
+                    </span>
+                  )}
+                </div>
+
+                {!agency.custom_domain_verified && (
+                  <div className="mt-4 rounded-xl bg-secondary/50 p-4 text-sm text-foreground">
+                    <p className="mb-2 font-medium">Añade uno de estos registros en tu proveedor de dominio:</p>
+                    <p className="mb-1">
+                      Si es un subdominio (ej. <code>viajes.tuagencia.com</code>): registro <strong>CNAME</strong> →{' '}
+                      <code>cname.vercel-dns.com</code>
+                    </p>
+                    <p>
+                      Si es tu dominio raíz (ej. <code>tuagencia.com</code>): registro <strong>A</strong> →{' '}
+                      <code>76.76.21.21</code>
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      El cambio puede tardar desde minutos hasta varias horas en propagarse, según tu proveedor.
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4 flex gap-3">
+                  <form action={checkDomainStatus}>
+                    <button
+                      type="submit"
+                      className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary/50"
+                    >
+                      Verificar ahora
+                    </button>
+                  </form>
+                  <form action={disconnectDomain}>
+                    <ConfirmButton
+                      confirmText="¿Seguro que quieres desconectar este dominio? Tus micrositios seguirán funcionando en el enlace de rutas-opal.vercel.app."
+                      className="rounded-xl px-4 py-2 text-sm text-muted-foreground hover:text-red-600 hover:underline"
+                    >
+                      Desconectar
+                    </ConfirmButton>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Plan */}
       <section id="plan">
