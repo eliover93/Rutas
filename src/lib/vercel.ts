@@ -12,16 +12,24 @@ async function vercelFetch(path: string, options: RequestInit = {}) {
   return res;
 }
 
-// Añade el dominio al proyecto de Vercel. Si ya está añadido (por otra
-// agencia, típicamente por error), Vercel devuelve un error claro que
-// dejamos pasar tal cual.
+// Añade el dominio al proyecto de Vercel. Si ya está añadido a ESTE MISMO
+// proyecto (por ejemplo, por un intento anterior), lo tratamos como éxito
+// en vez de como error — el resultado que queremos ya está conseguido.
 export async function addDomainToProject(domain: string) {
   const res = await vercelFetch(`/v10/projects/${process.env.VERCEL_PROJECT_ID}/domains`, {
     method: 'POST',
     body: JSON.stringify({ name: domain }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'Error añadiendo el dominio en Vercel');
+
+  if (!res.ok) {
+    const alreadyOnThisProject =
+      typeof data.error?.message === 'string' && data.error.message.includes('already in use by one of your projects');
+    if (!alreadyOnThisProject) {
+      throw new Error(data.error?.message || 'Error añadiendo el dominio en Vercel');
+    }
+  }
+
   return data;
 }
 
