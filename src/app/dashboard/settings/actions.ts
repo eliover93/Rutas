@@ -55,33 +55,35 @@ export async function updateBranding(formData: FormData) {
   redirect('/dashboard/settings?saved=1');
 }
 
-// Conecta el dominio: lo añade en Vercel y guarda el dato — todavía sin
-// verificar, hasta que el DNS de la agencia apunte bien.
+// --- DEBUG TEMPORAL: nos dice exactamente qué está pasando con Vercel ---
 export async function connectDomain(formData: FormData) {
+  const domain = ((formData.get('domain') as string) || '').trim().toLowerCase();
+
+  const tokenPreview = process.env.VERCEL_API_TOKEN
+    ? `${process.env.VERCEL_API_TOKEN.slice(0, 6)}...${process.env.VERCEL_API_TOKEN.slice(-4)} (${process.env.VERCEL_API_TOKEN.length} caracteres)`
+    : 'NO DEFINIDO';
+  const projectId = process.env.VERCEL_PROJECT_ID || 'NO DEFINIDO';
+
   try {
-    const supabase = await createClient();
-    const agencyId = await getAgencyId(supabase);
+    const res = await fetch(`https://api.vercel.com/v10/projects/${process.env.VERCEL_PROJECT_ID}/domains`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: domain }),
+    });
+    const data = await res.json();
 
-    const domain = ((formData.get('domain') as string) || '').trim().toLowerCase();
-    if (!domain) throw new Error('Escribe un dominio');
-
-    await addDomainToProject(domain);
-
-    const { error } = await supabase
-      .from('agencies')
-      .update({ custom_domain: domain, custom_domain_verified: false })
-      .eq('id', agencyId);
-    if (error) throw new Error(error.message);
-
-    revalidatePath('/dashboard/settings');
+    const debugInfo = `DEBUG — token: ${tokenPreview} | projectId: ${projectId} | status HTTP: ${res.status} | respuesta completa: ${JSON.stringify(data)}`;
+    redirect(`/dashboard/settings?error=${encodeURIComponent(debugInfo)}#dominio`);
   } catch (err) {
+    if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) throw err;
     const message = err instanceof Error ? err.message : 'Error desconocido';
-    redirect(`/dashboard/settings?error=${encodeURIComponent(message)}#dominio`);
+    redirect(`/dashboard/settings?error=${encodeURIComponent('DEBUG excepción: ' + message)}#dominio`);
   }
-  redirect('/dashboard/settings?saved=1#dominio');
 }
 
-// Vuelve a preguntarle a Vercel si el DNS ya está bien configurado.
 export async function checkDomainStatus() {
   try {
     const supabase = await createClient();
@@ -107,7 +109,6 @@ export async function checkDomainStatus() {
   redirect('/dashboard/settings?saved=1#dominio');
 }
 
-// Quita el dominio, tanto de Vercel como de la ficha de la agencia.
 export async function disconnectDomain() {
   try {
     const supabase = await createClient();
