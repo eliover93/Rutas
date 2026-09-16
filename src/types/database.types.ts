@@ -49,6 +49,8 @@ export interface Proposal {
   is_template: boolean;
   show_practical_info: boolean;
   practical_info_notes: string | null;
+  offer_visa_service: boolean;
+  visa_service_price: string | null;
 }
 
 export type DayCategory = 'naturaleza' | 'gastronomia' | 'cultura' | 'aventura' | 'playa' | 'descanso';
