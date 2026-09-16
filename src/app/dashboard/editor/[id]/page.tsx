@@ -158,6 +158,25 @@ export default async function EditorPage({
           aquí solo si tienes información concreta y verificada que prefieras mostrar en su lugar.
         </p>
 
+        <label className="flex items-center gap-2 text-sm text-foreground">
+          <input
+            type="checkbox"
+            name="offer_visa_service"
+            defaultChecked={proposal.offer_visa_service}
+            className="h-4 w-4 rounded border-border"
+          />
+          Ofrecer gestión de trámites y visados como servicio extra
+        </label>
+        <Field
+          label="Precio de este servicio (opcional, texto libre)"
+          name="visa_service_price"
+          defaultValue={proposal.visa_service_price ?? ''}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Ej. "desde 45€ por persona" — se muestra tal cual lo escribas. Si lo dejas vacío, solo se ofrece el
+          servicio sin precio, y el cliente pregunta al escribiros.
+        </p>
+
         <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
           Guardar cambios
         </button>
