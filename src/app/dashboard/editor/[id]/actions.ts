@@ -52,6 +52,8 @@ export async function updateProposalDetails(proposalId: string, formData: FormDa
         price_breakdown: parseBreakdown(formData.get('price_breakdown')),
         show_practical_info: formData.get('show_practical_info') === 'on',
         practical_info_notes: (formData.get('practical_info_notes') as string) || null,
+        offer_visa_service: formData.get('offer_visa_service') === 'on',
+        visa_service_price: (formData.get('visa_service_price') as string) || null,
       })
       .eq('id', proposalId);
 
