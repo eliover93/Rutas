@@ -50,6 +50,8 @@ export async function updateProposalDetails(proposalId: string, formData: FormDa
         price_includes: toArray(formData.get('price_includes')),
         price_excludes: toArray(formData.get('price_excludes')),
         price_breakdown: parseBreakdown(formData.get('price_breakdown')),
+        show_practical_info: formData.get('show_practical_info') === 'on',
+        practical_info_notes: (formData.get('practical_info_notes') as string) || null,
       })
       .eq('id', proposalId);
 
