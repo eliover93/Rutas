@@ -8,6 +8,7 @@ import { QuickFacts } from '@/components/micrositio/QuickFacts';
 import { DayCard } from '@/components/micrositio/DayCard';
 import { HotelBlock } from '@/components/micrositio/HotelBlock';
 import { PriceBreakdown } from '@/components/micrositio/PriceBreakdown';
+import { PracticalInfo } from '@/components/micrositio/PracticalInfo';
 import { CtaBar } from '@/components/micrositio/CtaBar';
 import { Reveal } from '@/components/shared/Reveal';
 import type { ThemeKey } from '@/types/database.types';
@@ -86,6 +87,10 @@ export default async function MicrositioPage({ params }: { params: Promise<{ slu
 
         <Reveal>
           <PriceBreakdown proposal={proposal} />
+        </Reveal>
+
+        <Reveal>
+          <PracticalInfo proposal={proposal} />
         </Reveal>
       </div>
 
