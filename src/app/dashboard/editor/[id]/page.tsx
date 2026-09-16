@@ -130,10 +130,32 @@ export default async function EditorPage({
         <TextArea
           name="price_breakdown"
           defaultValue={(proposal.price_breakdown ?? []).map((b: { label: string; amount: number }) => `${b.label}: ${b.amount}`).join('\n')}
-          />
+        />
         <p className="text-[11px] text-muted-foreground">
           Una línea por categoría, formato "Etiqueta: importe" — ej. "Vuelos: 450". Aparece desglosado justo debajo
           del precio total en el micrositio. Déjalo vacío si no quieres mostrar desglose.
+        </p>
+
+        <h3 className="pt-2 text-sm font-medium text-foreground">Información práctica (opcional)</h3>
+        <label className="flex items-center gap-2 text-sm text-foreground">
+          <input
+            type="checkbox"
+            name="show_practical_info"
+            defaultChecked={proposal.show_practical_info}
+            className="h-4 w-4 rounded border-border"
+          />
+          Mostrar esta sección en el micrositio (visado, vacunas, mejor época, moneda)
+        </label>
+        <p className="text-[11px] text-muted-foreground">
+          Solo tiene sentido para destinos fuera de la UE que necesiten visado — no la actives para un finde a Roma.
+        </p>
+        <TextArea
+          name="practical_info_notes"
+          defaultValue={proposal.practical_info_notes ?? ''}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Déjalo vacío para mostrar enlaces de búsqueda siempre actualizados (recomendado, sin mantenimiento). Escribe
+          aquí solo si tienes información concreta y verificada que prefieras mostrar en su lugar.
         </p>
 
         <button type="submit" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
